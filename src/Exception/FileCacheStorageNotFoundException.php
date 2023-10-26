@@ -6,5 +6,4 @@
 
 
     class FileCacheStorageNotFoundException extends Exception
-    {
-    }
+    { }
