@@ -4,22 +4,29 @@
 
     use STDW\Contract\Cache\CacheHandlerInterface;
     use STDW\Cache\File\Exception\FileCacheException;
+    use STDW\Cache\File\ValueObject\FileExtension;
+    use STDW\Cache\File\ValueObject\Storage;
 
 
     class FileCacheHandler implements CacheHandlerInterface
     {
-        protected $storage;
+        protected Storage $storage;
 
-        protected $file_extension = '.cache';
+        protected FileExtension $file_extension;
 
 
-        public function __construct(string $storage)
+        public function __construct(string $storage, string $file_extension = '.cache')
         {
-            if ( ! is_dir($storage) || ! file_exists($storage)) {
-                throw FileCacheException::storageNotFound($storage);
+            $this->storage = Storage::create($storage);
+            $this->file_extension = FileExtension::create($file_extension);
+
+            if ( ! $this->storage->isValid()) {
+                throw FileCacheException::storageNotFound($this->storage);
             }
 
-            $this->storage = $storage;
+            if ( ! $this->file_extension->isValid()) {
+                throw FileCacheException::fileExtensionNotValid($this->file_extension);
+            }
         }
 
 
@@ -52,7 +59,7 @@
         {
             $this->delete($key);
 
-            return (bool) file_put_contents($this->storage . $this->hash($key).'-'.$ttl.$this->file_extension, base64_encode( serialize($value)));
+            return (bool) file_put_contents($this->storage->get() . $this->hash($key) .'-'. $ttl . $this->file_extension->get(), base64_encode( serialize($value)));
         }
 
         public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
@@ -89,7 +96,7 @@
 
         public function clear(): bool
         {
-            $files = glob($this->storage . '*'.$this->file_extension);
+            $files = glob($this->storage->get() . '*'.$this->file_extension->get());
             $c = 0;
 
             foreach ($files as $file)  {
@@ -111,7 +118,7 @@
 
         protected function getfile(string $key): string
         {
-            $file = glob($this->storage . $this->hash($key).'-*'.$this->file_extension);
+            $file = glob($this->storage->get() . $this->hash($key).'-*'.$this->file_extension->get());
 
             if (count($file)) {
                 return $file[0];
