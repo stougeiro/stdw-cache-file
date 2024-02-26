@@ -2,11 +2,11 @@
 
     namespace STDW\Cache\File;
 
-    use STDW\Contract\CacheHandlerInterface;
-    use STDW\Cache\File\Exception\FileCacheStorageNotFoundException;
+    use STDW\Contract\Cache\CacheHandlerInterface;
+    use STDW\Cache\File\Exception\FileCacheException;
 
 
-    class FileHandler implements CacheHandlerInterface
+    class FileCacheHandler implements CacheHandlerInterface
     {
         protected $storage;
 
@@ -16,7 +16,7 @@
         public function __construct(string $storage)
         {
             if ( ! is_dir($storage) || ! file_exists($storage)) {
-                throw new FileCacheStorageNotFoundException("Caching: Storage path '{$storage}' not found.");
+                throw FileCacheException::storageNotFound($storage);
             }
 
             $this->storage = $storage;

@@ -15,6 +15,6 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "stougeiro/stdw-contract": "dev-main"
+        "stougeiro/stdw-contract-cache": "0.1.0"
     }
 }
