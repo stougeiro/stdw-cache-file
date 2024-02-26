@@ -9,6 +9,6 @@
     {
         public static function storageNotFound(string $storage): self
         {
-            return new self("Caching: Storage path '".$storage."' not found.");
+            return new self("Storage path '".$storage."' not found.");
         }
     }
